@@ -10,7 +10,8 @@ Screens:
 ![Simulator Screenshot - iPhone 15 Pro - 2024-04-13 at 00 23 28](https://github.com/petrinichav/ParisWeather/assets/1233085/1e0e6e85-f5ab-43fd-a822-1e8ca3389866)
 
 2. DailyForecastDetailsViewController - forecast details, has data about weather with timeinterval 3 hours.
-![Simulator Screenshot - iPhone 15 Pro - 2024-04-11 at 23 29 39](https://github.com/petrinichav/ParisWeather/assets/1233085/a3ef98c9-eed4-44a9-a685-e6f326cbdbec)
+
+![Simulator Screenshot - iPhone 15 Pro - 2024-04-13 at 00 26 58](https://github.com/petrinichav/ParisWeather/assets/1233085/4939f8ac-bd89-4483-9e46-4890f0eedb84)
 
 
 I used RxSwift to setup bidning ViewModel->View, Networking->ViewModel.
