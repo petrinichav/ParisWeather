@@ -14,6 +14,7 @@ final class WeatherForecastCell: UITableViewCell {
         label.font = .boldSystemFont(ofSize: 40)
         label.textColor = .white
         label.textAlignment = .center
+        label.accessibilityIdentifier = "temperatureLable"
         return label
     }()
     

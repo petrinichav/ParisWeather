@@ -16,6 +16,7 @@ final class DailyForecastDetailsViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.backgroundColor = .veepeePurple
         tableView.register(DailyForecastDetailsCell.self, forCellReuseIdentifier: DailyForecastDetailsCell.reusableIdentifier)
+        tableView.accessibilityIdentifier = "DailyForecast"
         return tableView
     }()
     

@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 
 final class WeatherForecastViewModel: ViewModel {
+    private let networkingClient: NetworkingClientable
     private let bag = DisposeBag()
     private let _forecast = BehaviorSubject<[DailyForecast]?>(value: nil)
     
@@ -18,10 +19,14 @@ final class WeatherForecastViewModel: ViewModel {
         return _forecast.asObservable()
     }
     
+    init(networkingClient: NetworkingClientable) {
+        self.networkingClient = networkingClient
+    }
+    
     func fetchWeatherForcast() {
         do {
             let data = FiveDayForecastRequest()
-            let observable: Observable<FiveDayForecastResponse> = try Request.fiveFaysForecast(data).send()
+            let observable: Observable<FiveDayForecastResponse> = try Request.fiveFaysForecast(data).send(networkingClient)
             observable.observe(on: MainScheduler.instance)
                 .subscribe(onNext: { [weak self] response in
                     let formatter = DateFormatter()
@@ -42,9 +47,13 @@ final class WeatherForecastViewModel: ViewModel {
                         }
                     }
                     self?._forecast.onNext(dailyForecasts)
+                }, onError: { [weak self] error in
+                    print("Fetch forecast error \(error)")
+                    self?._forecast.onError(error)
                 }).disposed(by: bag)
         } catch let error {
-            print("Fetch forecast error \(error)")
+            print("Request creation error \(error)")
+            self._forecast.onError(error)
         }
     }
 }

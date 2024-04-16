@@ -24,7 +24,12 @@ final class WeatherForecastViewController: UIViewController {
         let refreshControl = UIRefreshControl(frame: .zero)
         refreshControl.tintColor = .white
         refreshControl.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
+        refreshControl.accessibilityIdentifier = "RefreshControl"
         return refreshControl
+    }()
+    
+    private let overlayView: OverlayView = {
+        OverlayView(frame: .zero)
     }()
     
     @objc private func onRefresh() {
@@ -47,7 +52,9 @@ final class WeatherForecastViewController: UIViewController {
         view.backgroundColor = .white
         
         setupTableView()
+        setupOverlay()
         
+        overlayView.show()
         viewModel.fetchWeatherForcast()
     }
 }
@@ -66,6 +73,16 @@ private extension WeatherForecastViewController {
         
         viewModel.forecast
             .compactMap { $0 }
+            .do(onNext: { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.overlayView.hide()
+                }
+            }, onError: { [weak self] error in
+                DispatchQueue.main.async {
+                    self?.overlayView.hide()
+                    self?.showFetchForecastError()
+                }
+            })
             .bind(
                 to: tableView.rx.items(
                     cellIdentifier: WeatherForecastCell.reusableIdentifier,
@@ -84,5 +101,34 @@ private extension WeatherForecastViewController {
             })
             .bind(to: viewModel.navigation)
             .disposed(by: bag)
+    }
+    
+    func setupOverlay() {
+        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        overlayView.alpha = 0
+        
+        view.addSubview(overlayView)
+        NSLayoutConstraint.activate([
+            overlayView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            overlayView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            overlayView.topAnchor.constraint(equalTo: view.topAnchor),
+            overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+}
+
+private extension WeatherForecastViewController {
+    func showFetchForecastError() {
+        let alert = UIAlertController(
+            title: "Error",
+            message: "Sorry, we were not able to fetch data. Please, try again later",
+            preferredStyle: .alert
+        )
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addAction(cancel)
+        
+        present(alert, animated: true)
     }
 }

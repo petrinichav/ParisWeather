@@ -10,32 +10,37 @@ import XCTest
 final class ParisWeatherUITests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
 
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        
+        XCUIApplication.app.launch()
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    // TODO: Better way is adding of stubs for networking call for UI tests. But it requires an integraton some 3dparty or reusing environment variables and if-else statements.
+    func testWeatherForecastScreen() {
+        let table = XCUIApplication.app.tables.firstMatch
+        XCTAssertTrue(table.exists, "table was not initiated")
+        XCTAssertTrue(table.cells.count != 0)
+        table.swipeDown()
+        
+        let temperatureLabel = table.cells.firstMatch.staticTexts.matching(identifier: "temperatureLable")
+        XCTAssertTrue(temperatureLabel.element.isHittable)
     }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+    
+    func testOpenForecastDetailsScreenNavigation() {
+        let table = XCUIApplication.app.tables.firstMatch
+        
+        let cell = table.cells.firstMatch
+        XCTAssertTrue(cell.isHittable)
+        cell.tap()
+        
+        let dailyForecastTable = XCUIApplication.app.tables.matching(identifier: "DailyForecast")
+        // Add a wait condition for the overlay
+        let exists = NSPredicate(format: "exists == true")
+        expectation(for: exists, evaluatedWith: dailyForecastTable.element, handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
+        
+        XCTAssertTrue(dailyForecastTable.element.exists, "No daily forecast")
+        XCTAssertTrue(dailyForecastTable.cells.count != 0)
     }
 }

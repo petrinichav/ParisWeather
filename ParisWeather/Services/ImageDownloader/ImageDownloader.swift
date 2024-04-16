@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final private class ImageCache {
+final class ImageCache {
     private var images = [String: UIImage]()
     private var paths = [String]()
     private let capacity: Int
@@ -37,7 +37,7 @@ final private class ImageCache {
     }
 }
 
-class WeatherIconDownloader {
+final class WeatherIconDownloader {
     private let cache = ImageCache(capacity: 10)
     
     func download(icon: String) -> Observable<UIImage>? {

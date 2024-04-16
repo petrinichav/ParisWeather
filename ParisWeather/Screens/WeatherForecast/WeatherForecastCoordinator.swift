@@ -17,7 +17,7 @@ final class WeatherForecastCoordinator: Coordinator {
     }
     
     func push(direction: NavigationDestination) {
-        let viewModel = WeatherForecastViewModel()
+        let viewModel = WeatherForecastViewModel(networkingClient: NetworkingClient())
         let viewController = WeatherForecastViewController(model: viewModel)
         navigationcontroller?.setViewControllers([viewController], animated: false)
         

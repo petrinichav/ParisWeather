@@ -32,16 +32,14 @@ enum Request {
         }
     }
     
-    func send<Response: Decodable>() throws -> Observable<Response> {
-        let client = NetworkingClient()
+    func send<Response: Decodable>(_ client: NetworkingClientable = NetworkingClient()) throws -> Observable<Response> {
         guard let urlRequest = try RequestFactory().urlRequest(from: self) else {
             throw RequestError.invalidURL
         }
         return client.run(request: urlRequest)
     }
     
-    func data() throws -> Observable<Data> {
-        let client = NetworkingClient()
+    func data(_ client: NetworkingClientable = NetworkingClient()) throws -> Observable<Data> {
         guard let urlRequest = try RequestFactory().urlRequest(from: self) else {
             throw RequestError.invalidURL
         }
@@ -106,12 +104,18 @@ private struct RequestEncoder {
     }
 }
 
-private struct NetworkingClient {
+// MARK: - Client
+protocol NetworkingClientable {
+    func run<Response: Decodable>(request: URLRequest) -> Observable<Response>
+    func data(request: URLRequest) -> Observable<Data>
+}
+
+struct NetworkingClient: NetworkingClientable {
     func run<Response: Decodable>(request: URLRequest) -> Observable<Response> {
         data(request: request)
             .decode(type: Response.self, decoder: JSONDecoder())
     }
-    
+
     func data(request: URLRequest) -> Observable<Data> {
         URLSession.shared.rx.data(request: request)
     }
